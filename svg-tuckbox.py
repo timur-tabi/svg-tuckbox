@@ -37,6 +37,7 @@ import pysvg.builders
 import pysvg.structure
 import pysvg.style
 import pysvg.shape
+from optparse import OptionParser
 
 # The default CorelDraw page width and height
 WIDTH = 8.5
@@ -64,19 +65,130 @@ def line(x1, y1, x2, y2, strokewidth = HAIRLINE, stroke = 'red'):
     myStyle = pysvg.builders.StyleBuilder(style_dict)
     l = pysvg.shape.line(x1, y1, x2, y2)
     l.set_style(myStyle.getStyle())
+
     return l
 
-def draw_line(coords):
-    global svg
+def circle(cx, cy, r, strokewidth = HAIRLINE, stroke='red', fill='none'):
+    # Creates a circle
+    # @type cx: string or int
+    # @param cx: starting x-coordinate
+    # @type cy: string or int
+    # @param cy: starting y-coordinate
+    # @type r: string or int
+    # @param r: radius
+    # @type strokewidth: string or int
+    # @param strokewidth: width of the pen used to draw
+    # @type stroke: string (either css constants like "black" or numerical values like "#FFFFFF")
+    # @param stroke: color with which to draw the outer limits
+    # @type fill: string (either css constants like "black" or numerical values like "#FFFFFF")
+    # @param fill: color with which to fill the element (default: no filling)
+    # @return: a circle object
+    style_dict = {'fill':fill, 'stroke-width':strokewidth, 'stroke':stroke}
+    myStyle = pysvg.builders.StyleBuilder(style_dict)
+    c = pysvg.shape.circle(cx, cy, r)
+    c.set_style(myStyle.getStyle())
 
-    l = line(coords[0], coords[1], coords[2], coords[3])
-    svg.addElement(l)
+    return c
+
+def arc(x1, y1, x2, y2, r, strokewidth = HAIRLINE, stroke = 'red', fill = 'none', sweep = 0):
+    # Creates a circle
+    # @type cx: string or int
+    # @param cx: starting x-coordinate
+    # @type cy: string or int
+    # @param cy: starting y-coordinate
+    # @type r: string or int
+    # @param r: radius
+    # @type strokewidth: string or int
+    # @param strokewidth: width of the pen used to draw
+    # @type stroke: string (either css constants like "black" or numerical values like "#FFFFFF")
+    # @param stroke: color with which to draw the outer limits
+    # @type fill: string (either css constants like "black" or numerical values like "#FFFFFF")
+    # @param fill: color with which to fill the element (default: no filling)
+    # @return: a circle object
+    style_dict = {'fill':fill, 'stroke-width':strokewidth, 'stroke':stroke}
+    myStyle = pysvg.builders.StyleBuilder(style_dict)
+    p = pysvg.shape.path("M %s,%s" % (x1, y1))
+    p.appendArcToPath((x2 - x1) / 2, r, x2, y2, sweep_flag = sweep, relative = False)
+    p.set_style(myStyle.getStyle())
+
+    return p
+
+parser = OptionParser(usage="usage: %prog [options]")
+parser.add_option("-H", dest="h", help="card height", type="float", default = 3)
+parser.add_option("-W", dest="w", help="card width", type="float", default = 2)
+parser.add_option("-T", dest="t", help="card thickness", type="float", default = 0.5)
+
+(o, a) = parser.parse_args()
 
 svg = pysvg.structure.svg(width='%sin' % WIDTH, height='%sin' % HEIGHT)
 svg.set_viewBox('0 0 %s %s' % (WIDTH, HEIGHT))
 
-svg.addElement(line(1, 1, 1, 2))
-svg.addElement(line(1, 2, 2, 2))
-svg.addElement(line(2, 2, 2, 1))
-svg.addElement(line(2, 1, 1, 1))
+# Left edge of flaps 1 and 4
+svg.addElement(line(0, 0, 0, o.t * 0.9 + o.h))
+
+# Bottom edge of flap 1
+svg.addElement(line(0, 0, o.t, 0))
+
+# Right edge of flap 1
+svg.addElement(line(o.t, 0, o.t, o.t))
+
+# Top edge of flap 4
+svg.addElement(line(0, o.t + o.h, o.t, o.t + o.h))
+
+# Bottom edge of flap 3
+svg.addElement(line(o.t, o.t * 0.1, o.t + o.w, o.t * 0.1))
+
+# Left edge of flap 2
+svg.addElement(line(o.t + o.w, 0, o.t + o.w, o.t))
+
+# Bottom edge of flap 2 and bottom flap of box front
+svg.addElement(line(o.t + o.w, 0, o.t + o.w + o.t + o.w, 0))
+
+# Right edge of flap 2
+svg.addElement(line(o.t + o.w + o.t, 0,
+    o.t + o.w + o.t, o.t))
+
+# Right edge of bottom flap of box front
+svg.addElement(line(o.t + o.w + o.t + o.w, 0,
+    o.t + o.w + o.t + o.w, o.t))
+
+# Bottom edge of right flap of box front
+svg.addElement(line(o.t + o.w + o.t + o.w, o.t,
+    o.t + o.w + o.t + o.w + o.t, o.t))
+
+# Right edge of right flap of box front
+svg.addElement(line(o.t + o.w + o.t + o.w + o.t, o.t,
+    o.t + o.w + o.t + o.w + o.t, o.t + o.h + o.t * 0.5))
+
+# Right flap of box front
+svg.addElement(line(o.t + o.w + o.t + o.w + o.t, o.t + o.h + o.t * 0.5,
+    o.t + o.w + o.t + o.w + 0.5 * o.t, o.t + o.h + o.t * 0.5))
+svg.addElement(line(o.t + o.w + o.t + o.w + 0.5 * o.t, o.t + o.h + o.t * 0.5,
+    o.t + o.w + o.t + o.w, o.t + o.h + o.t * 0.25))
+svg.addElement(line(o.t + o.w + o.t + o.w, o.t + o.h + o.t * 0.25,
+    o.t + o.w + o.t + o.w, o.t + o.h))
+
+# Top of box front, with half-inch semi-circle inset
+svg.addElement(line(o.t + o.w + o.t + o.w, o.t + o.h,
+    o.t + o.w + o.t + o.w * 0.5 + 0.25, o.t + o.h))
+svg.addElement(line(o.t + o.w + o.t + o.w * 0.5 - 0.25, o.t + o.h,
+    o.t + o.w + o.t, o.t + o.h))
+svg.addElement(arc(o.t + o.w + o.t + o.w * 0.5 - 0.25, o.t + o.h,
+    o.t + o.w + o.t + o.w * 0.5 + 0.25, o.t + o.h, 0.25, sweep = 1))
+
+# Left flap of box front
+svg.addElement(line(o.t + o.w + o.t, o.t + o.h,
+    o.t + o.w + o.t, o.t + o.h + o.t * 0.25))
+svg.addElement(line(o.t + o.w + o.t, o.t + o.h + o.t * 0.25,
+    o.t + o.w + o.t * 0.5, o.t + o.h + o.t * 0.5))
+svg.addElement(line(o.t + o.w + o.t * 0.5, o.t + o.h + o.t * 0.5,
+    o.t + o.w, o.t + o.h + o.t * 0.5))
+
+# Top flap
+svg.addElement(line(o.t + o.w, o.t + o.h,
+    o.t + o.w, o.t + o.h + o.t * 1.5))
+svg.addElement(line(o.t, o.t + o.h, o.t, o.t + o.h + o.t * 1.5))
+svg.addElement(arc(o.t, o.t + o.h + o.t * 1.5, o.t + o.w,
+        o.t + o.h + o.t * 1.5, o.w * 0.25))
+
 svg.save('/Users/timur/Documents/LaserCutter/line.svg')
