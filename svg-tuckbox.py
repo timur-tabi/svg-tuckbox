@@ -124,7 +124,7 @@ svg = pysvg.structure.svg(width='%smm' % WIDTH, height='%smm' % HEIGHT)
 svg.set_viewBox('0 0 %s %s' % (WIDTH, HEIGHT))
 
 # Left edge of flaps 1 and 4
-svg.addElement(line(0, 0, 0, o.t * 0.9 + o.h))
+svg.addElement(line(0, 0, 0, o.t + o.h))
 
 # Bottom edge of flap 1
 svg.addElement(line(0, 0, o.t, 0))
@@ -187,9 +187,9 @@ svg.addElement(line(o.t + o.w + o.t * 0.5, o.t + o.h + o.t * 0.5,
 
 # Top flap
 svg.addElement(line(o.t + o.w, o.t + o.h,
-    o.t + o.w, o.t + o.h + o.t * 1.5))
-svg.addElement(line(o.t, o.t + o.h, o.t, o.t + o.h + o.t * 1.5))
-svg.addElement(arc(o.t, o.t + o.h + o.t * 1.5, o.t + o.w,
-        o.t + o.h + o.t * 1.5, o.w * 0.25))
+    o.t + o.w, o.t + o.h + o.t))
+svg.addElement(line(o.t, o.t + o.h, o.t, o.t + o.h + o.t))
+svg.addElement(arc(o.t, o.t + o.h + o.t, o.t + o.w,
+    o.t + o.h + o.t, o.w * 0.25))
 
 svg.save('tuckbox.svg')
