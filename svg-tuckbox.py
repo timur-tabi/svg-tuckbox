@@ -40,11 +40,11 @@ import pysvg.shape
 from optparse import OptionParser
 
 # The default CorelDraw page width and height
-WIDTH = 8.5
-HEIGHT = 11
+WIDTH = 1000
+HEIGHT = 1000
 
 # How CorelDraw defines a Hairline width
-HAIRLINE = 0.003
+HAIRLINE = 0.01
 
 def line(x1, y1, x2, y2, strokewidth = HAIRLINE, stroke = 'red'):
     # Creates a line
@@ -114,13 +114,13 @@ def arc(x1, y1, x2, y2, r, strokewidth = HAIRLINE, stroke = 'red', fill = 'none'
     return p
 
 parser = OptionParser(usage="usage: %prog [options]")
-parser.add_option("-H", dest="h", help="card height", type="float", default = 3)
-parser.add_option("-W", dest="w", help="card width", type="float", default = 2)
-parser.add_option("-T", dest="t", help="card thickness", type="float", default = 0.5)
+parser.add_option("-H", dest="h", help="card height", type="float", default = 92.0)
+parser.add_option("-W", dest="w", help="card width", type="float", default = 60.0)
+parser.add_option("-T", dest="t", help="card thickness", type="float", default = 4.0)
 
 (o, a) = parser.parse_args()
 
-svg = pysvg.structure.svg(width='%sin' % WIDTH, height='%sin' % HEIGHT)
+svg = pysvg.structure.svg(width='%smm' % WIDTH, height='%smm' % HEIGHT)
 svg.set_viewBox('0 0 %s %s' % (WIDTH, HEIGHT))
 
 # Left edge of flaps 1 and 4
@@ -168,13 +168,14 @@ svg.addElement(line(o.t + o.w + o.t + o.w + 0.5 * o.t, o.t + o.h + o.t * 0.5,
 svg.addElement(line(o.t + o.w + o.t + o.w, o.t + o.h + o.t * 0.25,
     o.t + o.w + o.t + o.w, o.t + o.h))
 
-# Top of box front, with half-inch semi-circle inset
+# Top of box front, with 15mm semi-circle inset
+R = 7.5   # Radius
 svg.addElement(line(o.t + o.w + o.t + o.w, o.t + o.h,
-    o.t + o.w + o.t + o.w * 0.5 + 0.25, o.t + o.h))
-svg.addElement(line(o.t + o.w + o.t + o.w * 0.5 - 0.25, o.t + o.h,
+    o.t + o.w + o.t + o.w * 0.5 + R, o.t + o.h))
+svg.addElement(line(o.t + o.w + o.t + o.w * 0.5 - R, o.t + o.h,
     o.t + o.w + o.t, o.t + o.h))
-svg.addElement(arc(o.t + o.w + o.t + o.w * 0.5 - 0.25, o.t + o.h,
-    o.t + o.w + o.t + o.w * 0.5 + 0.25, o.t + o.h, 0.25, sweep = 1))
+svg.addElement(arc(o.t + o.w + o.t + o.w * 0.5 - R, o.t + o.h,
+    o.t + o.w + o.t + o.w * 0.5 + R, o.t + o.h, R, sweep = 1))
 
 # Left flap of box front
 svg.addElement(line(o.t + o.w + o.t, o.t + o.h,
