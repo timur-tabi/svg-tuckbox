@@ -192,4 +192,4 @@ svg.addElement(line(o.t, o.t + o.h, o.t, o.t + o.h + o.t * 1.5))
 svg.addElement(arc(o.t, o.t + o.h + o.t * 1.5, o.t + o.w,
         o.t + o.h + o.t * 1.5, o.w * 0.25))
 
-svg.save('/Users/timur/Documents/LaserCutter/line.svg')
+svg.save('tuckbox.svg')
